@@ -12,6 +12,13 @@ double x,f,xi,xf,xc,y,yi,yf,yc,teta,psi,beta,R,D,omega,domega;
 
 geometry_msgs::Twist vel;
 
+ //localização startpoint
+    xi =  4;
+    yi= 1.5;
+//localização endpoint   
+    xf = -3;
+    yf = 1.5;
+
 double norma_ang( double ang )
 {   if  ( ang >  M_PI) {
         ang -= 2 * M_PI; 
@@ -21,7 +28,18 @@ double norma_ang( double ang )
     }
     return ang;
 }
-
+void go2point (Xc,Yc,X,Y){
+    omega = atan2((Yc - Y) , ( Xc - X));
+    domega= norma_ang(omega - psi);
+    if ( fabs(domega) > 0.2 ){
+        vel.angular.z = domega * 3;
+        vel.linear.x = (M_PI - fabs(domega))*0.4 ;
+      } else {
+        vel.angular.z = domega*2 ;
+        vel.linear.x = 3;
+     }
+    pvel.publish(vel);  
+}
 
 
 void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
@@ -30,12 +48,6 @@ void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
     //localização do carro
     x = pos->pose.pose.position.x;          
     y = pos->pose.pose.position.y;
-    //localização startpoint
-    xi =  4;
-    yi= 1.5;
-    //localização endpoint   
-    xf = -3;
-    yf = 1.5;
     //determinação dos angulos
     psi = tf::getYaw(qt);      // ang. do carro
     teta= atan2( (yf - yi) , (xf - xi) );        //angulo do endpoint em relação ao start
@@ -45,17 +57,8 @@ void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
     R = D*cos(beta);          //R é a distancia do startpoint até a perpendicular 
     xc = (R + delta)*cos(teta) + xi;
     yc = (R + delta)*sin(teta)  + yi; 
-    omega = atan2((yc - y) , ( xc - x));
-    domega= norma_ang(omega - psi);
-    if ( fabs(domega) > 0.2 ){
-        vel.angular.z = domega * 3;
-        vel.linear.x = (M_PI - fabs(domega))*0.4 ;
-      } else {
-        vel.angular.z = domega*2 ;
-        vel.linear.x = 3;
-     }
-    pvel.publish(vel);
-    std::cout << "Psi: " << psi << " Omega: " << omega <<" domega: "<< domega << " Beta: " << beta << std::endl;
+    go2point(xc,yc,x,y);
+    std::cout <<"Xc: "<<xc <<"Yc::" << yc << std::endl;
 }
 int main( int argc , char **argv )
 {   ros::init(argc, argv, "carrot_finder");
