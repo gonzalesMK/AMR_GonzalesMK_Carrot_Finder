@@ -10,7 +10,7 @@ ros::Publisher pvel;
 
 double x,f,xi,xf,xc,y,yi,yf,yc,teta,psi,beta,R,D,teta2; 
 
-geometry_msgs::Twist vel;
+
 
 double norma_ang( double ang )
 {   if  ( ang >  M_PI) {
@@ -21,9 +21,9 @@ double norma_ang( double ang )
     }
     return ang;
 }
-void go2point (double Xc, double Yc, double X, double Y,double ang){
+/* void go2point (double Xc, double Yc, double X, double Y,double ang){
     double omega, domega;   
-    
+    geometry_msgs::Twist vel;    
     omega = atan2((Yc - Y) , ( Xc - X)); //Angulo do carro em relação ao carrot
     domega= norma_ang(omega - psi);
     
@@ -35,7 +35,7 @@ void go2point (double Xc, double Yc, double X, double Y,double ang){
         vel.linear.x = 3;
      }
     pvel.publish(vel);  
-}
+} */
 
 
 void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
@@ -54,7 +54,7 @@ void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
     R = fabs(D*cos(beta));          //R é a distancia do startpoint até a perpendicular 
     xc = (R + delta)*cos(teta) + xi;
     yc = (R + delta)*sin(teta)  + yi; 
-    go2point(xc,yc,x,y,psi);
+  //  go2point(xc,yc,x,y,psi);
     std::cout <<"Xc: "<<xc <<"Yc::" << yc << "beta:" << beta<< std::endl;
 }
 
