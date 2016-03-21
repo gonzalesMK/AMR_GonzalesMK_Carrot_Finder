@@ -12,13 +12,6 @@ double x,f,xi,xf,xc,y,yi,yf,yc,teta,psi,beta,R,D,omega,domega;
 
 geometry_msgs::Twist vel;
 
- //localização startpoint
-    xi =  4;
-    yi= 1.5;
-//localização endpoint   
-    xf = -3;
-    yf = 1.5;
-
 double norma_ang( double ang )
 {   if  ( ang >  M_PI) {
         ang -= 2 * M_PI; 
@@ -28,7 +21,7 @@ double norma_ang( double ang )
     }
     return ang;
 }
-void go2point (Xc,Yc,X,Y){
+void go2point (double Xc, double Yc, double X, double Y){
     omega = atan2((Yc - Y) , ( Xc - X));
     domega= norma_ang(omega - psi);
     if ( fabs(domega) > 0.2 ){
@@ -60,9 +53,17 @@ void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
     go2point(xc,yc,x,y);
     std::cout <<"Xc: "<<xc <<"Yc::" << yc << std::endl;
 }
+
 int main( int argc , char **argv )
 {   ros::init(argc, argv, "carrot_finder");
     ros::NodeHandle node;
+    //localização startpoint
+    xi =  4;
+    yi= 1.5;
+    //localização endpoint   
+    xf = -3;
+    yf = 1.5;
+
     ros::Subscriber s_odom = node.subscribe("/vrep/vehicle/odometry", 1, odomcb);
     pvel = node.advertise<geometry_msgs::Twist>("/kine", 1);
  
