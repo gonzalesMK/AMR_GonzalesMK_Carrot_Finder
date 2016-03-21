@@ -5,10 +5,10 @@
 #include <tf/tf.h>
 #include <geometry_msgs/Twist.h>
 #include <math.h>
-#define delta 0
+#define delta 0.2
 ros::Publisher pvel;
 
-double x,f,xi,xf,xc,y,yi,yf,yc,teta,psi,beta,R,D,omega,domega; 
+double x,f,xi,xf,xc,y,yi,yf,yc,teta,psi,beta,R,D,omega,domega,teta2; 
 
 geometry_msgs::Twist vel;
 
@@ -22,6 +22,7 @@ double norma_ang( double ang )
     return ang;
 }
 void go2point (double Xc, double Yc, double X, double Y){
+        // ang. do carro
     omega = atan2((Yc - Y) , ( Xc - X));
     domega= norma_ang(omega - psi);
     if ( fabs(domega) > 0.2 ){
@@ -36,22 +37,23 @@ void go2point (double Xc, double Yc, double X, double Y){
 
 
 void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
-{     geometry_msgs::Quaternion qt;
+{   geometry_msgs::Quaternion qt;
     qt = pos -> pose.pose.orientation; //Cria um quaternion que pega as inf. do carro
+    psi = tf::getYaw(qt); 
     //localização do carro
     x = pos->pose.pose.position.x;          
     y = pos->pose.pose.position.y;
     //determinação dos angulos
-    psi = tf::getYaw(qt);      // ang. do carro
+    teta2= atan2((y- yi),(x- xi));
     teta= atan2( (yf - yi) , (xf - xi) );        //angulo do endpoint em relação ao start
-    beta = teta - psi;         //ang. do delta
+    beta = teta - teta2;         //ang. do delta
     //localização da cenora
     D = sqrt( pow((xi-xf),2) + pow((yi-yf),2)); // distancia do carro até o startpoint
-    R = D*cos(beta);          //R é a distancia do startpoint até a perpendicular 
+    R = fabs(D*cos(beta));          //R é a distancia do startpoint até a perpendicular 
     xc = (R + delta)*cos(teta) + xi;
     yc = (R + delta)*sin(teta)  + yi; 
     go2point(xc,yc,x,y);
-    std::cout <<"Xc: "<<xc <<"Yc::" << yc << std::endl;
+    std::cout <<"Xc: "<<xc <<"Yc::" << yc << "beta:" << beta<< std::endl;
 }
 
 int main( int argc , char **argv )
