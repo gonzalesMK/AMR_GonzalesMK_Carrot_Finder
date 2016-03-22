@@ -31,12 +31,12 @@ void go2point (double Xc, double Yc, double X, double Y,double ang){
     omega = atan2((Yc - Y) , ( Xc - X)); //Angulo do carro em relação ao carrot
     domega= norma_ang(omega - psi);
     
-    if ( fabs(domega) > 0.2 ){
-        vel.angular.z = domega * 9;
-        vel.linear.x = (M_PI - fabs(domega))*2 + 3 ;
+    if ( fabs(domega) > 0.4 ){
+        vel.angular.z = domega * 20;
+        vel.linear.x = (M_PI - fabs(domega))*3 + 5 ;
       } else {
-        vel.angular.z = domega*10 ;
-        vel.linear.x = 10;
+        vel.angular.z = domega*12 ;
+        vel.linear.x = 15;
      }
     std::cout << "vl: " << vel.linear.x << "va: "<< vel.angular.z << "i+1:" << i+1 << std::endl;
     pvel.publish(vel);  
@@ -52,11 +52,11 @@ void odomcb(const nav_msgs::Odometry::ConstPtr &pos)
     y = pos->pose.pose.position.y;
     //determinação dos angulos
     dist = sqrt( pow( x - xf, 2) + pow(y - yf, 2));
-    if ( dist< 1 ) {
+    if ( dist < 1 ) {
         i++;        
         xi = ponto[i].x;
         yi= ponto[i].y;
-        if ( i == 10) {
+        if ( i == 12) {
             i = -1;
         }
         xf= ponto[i+1].x;
@@ -78,36 +78,39 @@ int main( int argc , char **argv )
 {   ros::init(argc, argv, "carrot_finder");
     ros::NodeHandle node;
     i = 0;
-    ponto[0].x= -12.95;
-    ponto[0].y= -0.225;
-    ponto[1].x= 10;
-    ponto[1].y=+0.175;
-    ponto[2].x= 11.1;
+    ponto[0].x= -10.3;
+    ponto[0].y= -0.35;
+    ponto[1].x= 10.2;
+    ponto[1].y= -0.975;
+    ponto[2].x= 11.6;
     ponto[2].y= -9.5;
-    ponto[3].x= 15.3;
-    ponto[3].y= -15;
+    ponto[3].x= 14.52;
+    ponto[3].y= -15.3;
     ponto[4].x= 8;
     ponto[4].y = -19.9;
     ponto[5].x= -6.625;
     ponto[5].y= -19.65;
-    ponto[6].x = -14.5;
-    ponto[6].y= -13.6;
+    ponto[6].x = -14.1;
+    ponto[6].y= -13.8;
     ponto[7].x = -13.2;
-    ponto[7].y= -12.2;
-    ponto[8].x = -1.3;
-    ponto[8].y= -12.8;
-    ponto[9].x = -1.18;
-    ponto[9].y= -10.5;
-    ponto[10].x= -13.1;
-    ponto[10].y= -10.9;
-    
+    ponto[7].y= -12.7;
+    ponto[8].x = -2.05;
+    ponto[8].y= -12.6;
+    ponto[9].x = -1.45;
+    ponto[9].y= -11.725;
+    ponto[10].x = -1.775;
+    ponto[10].y= -11.175;
+    ponto[11].x= -12.7;
+    ponto[11].y= -10.4;
+    ponto[12].x= -12.8;
+    ponto[12].y= -2.5;
     
     dist = 100;
     xi = 3.55;
     yi = 0.125;
     xf= 11;
     yf = 0.175;
-    ros::Subscriber s_odom = node.subscribe("/vrep/vehicle/odometry", 1, odomcb);
+    ros::Subscriber s_odom = node.subscribe("/vrep/carrot/odometry", 1, odomcb);
     pvel = node.advertise<geometry_msgs::Twist>("/carrot_velocity", 1);
  
     ros::spin();   
